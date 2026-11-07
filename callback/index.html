@@ -22,9 +22,11 @@
   const out = document.getElementById("out");
   const code = q.get("code"), err = q.get("error");
   if (code) {
-    out.innerHTML = '<p>授权成功。复制下面的授权码，到服务器上运行 <b>python3 auth.py exchange</b> 后粘贴：</p><code id="c"></code><button id="b">复制</button>';
-    document.getElementById("c").textContent = code;
-    document.getElementById("b").onclick = () => navigator.clipboard.writeText(code).then(() => { document.getElementById("b").textContent = "已复制"; });
+    // 连同 state 一起复制：服务器端会核对 state，确认这是本次授权链接产生的码
+    const payload = "code=" + encodeURIComponent(code) + "&state=" + encodeURIComponent(q.get("state") || "");
+    out.innerHTML = '<p>授权成功。点「复制」，到服务器上运行 <b>python3 auth.py exchange</b> 后粘贴（只运行一次）：</p><code id="c"></code><button id="b">复制</button>';
+    document.getElementById("c").textContent = payload;
+    document.getElementById("b").onclick = () => navigator.clipboard.writeText(payload).then(() => { document.getElementById("b").textContent = "已复制"; });
   } else {
     out.innerHTML = '<p class="err"></p>';
     out.firstChild.textContent = err ? ("授权失败：" + err + " " + (q.get("error_description") || "")) : "地址栏里没有授权码。";
